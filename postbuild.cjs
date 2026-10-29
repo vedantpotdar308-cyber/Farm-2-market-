@@ -4,33 +4,66 @@ const path = require('path');
 const distHtmlPath = path.join(__dirname, 'dist', 'index.html');
 let html = fs.readFileSync(distHtmlPath, 'utf8');
 
-// Match the inlined script tag
-const scriptMatch = html.match(/<script type="module" crossorigin>([\s\S]*?)<\/script>/);
+// Find the module script
+const scriptStart = html.indexOf('<script type="module"');
+const scriptEnd = html.indexOf('</script>', scriptStart) + '</script>'.length;
 
-if (scriptMatch) {
-  const fullScriptTag = scriptMatch[0];
-  // Remove script from <head>
-  html = html.replace(fullScriptTag, '');
-  // Insert script right after <div id="root"></div>
-  html = html.replace('<div id="root"></div>', '<div id="root"></div>\n    ' + fullScriptTag);
+if (scriptStart !== -1 && scriptEnd !== -1) {
+  const scriptTag = html.substring(scriptStart, scriptEnd);
+  
+  // Extract pure JS inside <script> to verify syntax
+  const jsCode = scriptTag.replace(/<script[^>]*>|<\/script>/g, '');
+  try {
+    new Function(jsCode);
+    console.log('✓ Script JavaScript syntax is 100% valid.');
+  } catch (err) {
+    console.error('✗ FATAL: Script syntax error detected:', err.message);
+    process.exit(1);
+  }
 
+  // Remove script tag from its original position (head)
+  html = html.substring(0, scriptStart) + html.substring(scriptEnd);
+  
+  // Place script tag safely AFTER <div id="root"></div>
+  const rootMarker = '<div id="root"></div>';
+  const rootPos = html.indexOf(rootMarker);
+  if (rootPos !== -1) {
+    html = html.substring(0, rootPos + rootMarker.length) + '\n    ' + scriptTag + html.substring(rootPos + rootMarker.length);
+    console.log('✓ Safely relocated <script> tag to immediately after #root before </body>');
+  } else {
+    console.warn('! Warning: <div id="root"></div> not found, script kept in place.');
+  }
+
+  // Write back to dist/index.html
   fs.writeFileSync(distHtmlPath, html, 'utf8');
-  console.log('Successfully moved inlined script to after #root in dist/index.html');
 } else {
-  console.log('No module script tag found to move');
+  console.log('! No <script type="module"> tag found.');
 }
 
-// Also copy to docs/index.html and root Farm2Market_Website.html
+// Verify output file syntax again
+const updatedHtml = fs.readFileSync(distHtmlPath, 'utf8');
+const updatedStart = updatedHtml.indexOf('<script type="module"');
+const updatedEnd = updatedHtml.indexOf('</script>', updatedStart) + '</script>'.length;
+const updatedJs = updatedHtml.substring(updatedStart, updatedEnd).replace(/<script[^>]*>|<\/script>/g, '');
+try {
+  new Function(updatedJs);
+  console.log('✓ Final dist/index.html verified valid syntax!');
+} catch (err) {
+  console.error('✗ FATAL: Final syntax check failed:', err.message);
+  process.exit(1);
+}
+
+// Copy to docs/index.html (GitHub Pages target)
 const docsDir = path.join(__dirname, 'docs');
 if (!fs.existsSync(docsDir)) {
   fs.mkdirSync(docsDir, { recursive: true });
 }
-
 fs.copyFileSync(distHtmlPath, path.join(docsDir, 'index.html'));
-console.log('Copied to docs/index.html (GitHub Pages target)');
+console.log('✓ Copied to docs/index.html (GitHub Pages target)');
 
+// Copy to standalone html files
 fs.copyFileSync(distHtmlPath, path.join(__dirname, 'Farm2Market_Website.html'));
-console.log('Copied to Farm2Market/Farm2Market_Website.html');
+console.log('✓ Copied to Farm2Market/Farm2Market_Website.html');
 
 fs.copyFileSync(distHtmlPath, path.join(__dirname, '..', 'Farm2Market_Website.html'));
-console.log('Copied to d:/download/Farm2Market_Website.html');
+console.log('✓ Copied to d:/download/Farm2Market_Website.html');
