@@ -68,9 +68,9 @@ export const PhotoVerificationModal: React.FC = () => {
             </div>
             <div>
               <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-200">
-                Step 3 of Farmer Track
+                Quality Inspection
               </span>
-              <h3 className="text-xl font-extrabold">Photo Verification</h3>
+              <h3 className="text-xl font-extrabold">Produce Photo Verification</h3>
             </div>
           </div>
           <p className="text-xs text-emerald-100 mt-1">
@@ -173,10 +173,10 @@ export const PhotoVerificationModal: React.FC = () => {
                 />
               </div>
 
-              <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-[11px] leading-relaxed flex items-start gap-2">
-                <span className="font-bold text-amber-700 text-xs mt-0.5">ℹ</span>
+              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 text-[11px] leading-relaxed flex items-start gap-2">
+                <span className="font-bold text-emerald-700 text-xs mt-0.5">ℹ</span>
                 <span>
-                  <strong>Hackathon Quality Protocol:</strong> Photo verification provides digital traceability and surface inspection. Physical harvest cross-checking is additionally executed at <strong>Step 5 (Check Quantity)</strong> before dispatch.
+                  <strong>Produce Quality Assurance:</strong> Digital image verification provides visual traceability. Physical harvest cross-checking is confirmed before order dispatch.
                 </span>
               </div>
             </div>

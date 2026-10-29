@@ -14,7 +14,15 @@ import {
   ExternalLink 
 } from 'lucide-react';
 
-export const BuyerTrackView: React.FC = () => {
+interface BuyerTrackViewProps {
+  activeTab?: string;
+  setActiveTab?: (tab: string) => void;
+}
+
+export const BuyerTrackView: React.FC<BuyerTrackViewProps> = ({
+  activeTab: externalTab,
+  setActiveTab: setExternalTab
+}) => {
   const { 
     activeBuyer, 
     buyerType, 
@@ -24,7 +32,12 @@ export const BuyerTrackView: React.FC = () => {
     cartCount 
   } = useApp();
 
-  const [activeTab, setActiveTab] = useState<'BROWSE' | 'ORDERS' | 'PROFILE'>('BROWSE');
+  const [internalTab, setInternalTab] = useState<'BROWSE' | 'ORDERS' | 'PROFILE'>('BROWSE');
+  const activeTab = (externalTab as 'BROWSE' | 'ORDERS' | 'PROFILE') || internalTab;
+  const setActiveTab = (tab: 'BROWSE' | 'ORDERS' | 'PROFILE') => {
+    if (setExternalTab) setExternalTab(tab);
+    setInternalTab(tab);
+  };
 
   // Filter orders made by buyer
   const buyerOrders = orders;
@@ -41,8 +54,8 @@ export const BuyerTrackView: React.FC = () => {
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-sky-500/20 text-sky-300 border border-sky-500/30 mb-2">
-              <span className="w-2 h-2 rounded-full bg-sky-400 animate-ping"></span>
-              Buyer Track Dashboard (Buy Fresh Products)
+              <span className="w-2 h-2 rounded-full bg-sky-400"></span>
+              Procurement & Buyer Portal
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
               {buyerType === 'bulk' && activeBuyer.businessName 
@@ -69,7 +82,7 @@ export const BuyerTrackView: React.FC = () => {
               className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs flex items-center gap-2 border border-white/20 transition"
             >
               <User className="w-4 h-4" />
-              <span>Step 1: Profile & Address</span>
+              <span>Profile & Address</span>
             </button>
           </div>
         </div>
@@ -117,7 +130,7 @@ export const BuyerTrackView: React.FC = () => {
         </div>
       </div>
 
-      {/* Tabs matching Buyer Track */}
+      {/* Tabs */}
       <div className="flex items-center gap-2 border-b border-slate-200 pb-2">
         <button
           onClick={() => setActiveTab('BROWSE')}
@@ -128,7 +141,7 @@ export const BuyerTrackView: React.FC = () => {
           }`}
         >
           <ShoppingBag className="w-4 h-4" />
-          <span>Browse & Buy Products (Step 2)</span>
+          <span>Browse & Buy Products</span>
         </button>
 
         <button
@@ -140,7 +153,7 @@ export const BuyerTrackView: React.FC = () => {
           }`}
         >
           <Truck className="w-4 h-4" />
-          <span>Track Order Status (Step 5)</span>
+          <span>Track Order Status</span>
           <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-white/20">
             {buyerOrders.length}
           </span>
@@ -155,7 +168,7 @@ export const BuyerTrackView: React.FC = () => {
           }`}
         >
           <User className="w-4 h-4" />
-          <span>Buyer Detail & Address (Step 1)</span>
+          <span>Buyer Details & Address</span>
         </button>
       </div>
 
@@ -173,7 +186,7 @@ export const BuyerTrackView: React.FC = () => {
                 Your Order History & Live Tracking
               </h3>
               <p className="text-xs text-slate-500">
-                Step 5: Follow your consignments as the farmer checks availability, packs, and dispatches them.
+                Follow your consignments as the farmer checks availability, packs, and dispatches them.
               </p>
             </div>
           </div>
@@ -225,7 +238,7 @@ export const BuyerTrackView: React.FC = () => {
                     onClick={() => setSelectedOrderForTracking(order)}
                     className="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs flex items-center gap-1.5 self-start sm:self-auto shadow-sm transition"
                   >
-                    <span>Step 5: Track Status</span>
+                    <span>Track Status</span>
                     <ExternalLink className="w-3.5 h-3.5" />
                   </button>
                 </div>

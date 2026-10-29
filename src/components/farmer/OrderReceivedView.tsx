@@ -65,7 +65,7 @@ export const OrderReceivedView: React.FC = () => {
             )}
           </div>
           <p className="text-xs text-slate-500 mt-0.5">
-            Step 4: Customer orders arriving in real-time from Pune, Mumbai and surrounding mandi regions.
+            Customer orders arriving in real-time from wholesale and retail buyers.
           </p>
         </div>
 
@@ -159,7 +159,7 @@ export const OrderReceivedView: React.FC = () => {
                     {isPendingCheck && (
                       <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300">
                         <Clock className="w-3 h-3" />
-                        Step 5: Needs Stock Check
+                        Awaiting Stock Check
                       </span>
                     )}
                     {isConfirmed && (
@@ -242,18 +242,18 @@ export const OrderReceivedView: React.FC = () => {
                     className="text-xs font-semibold text-slate-500 hover:text-slate-800 flex items-center gap-1"
                   >
                     <ExternalLink className="w-3.5 h-3.5" />
-                    <span>View Customer Tracking Journey</span>
+                    <span>View Consignment Tracking</span>
                   </button>
 
                   <div className="flex items-center gap-2">
-                    {/* Step 5: Check Quantity */}
+                    {/* Check Quantity */}
                     {isPendingCheck && (
                       <button
                         onClick={() => handleOpenQuantityCheck(order)}
                         className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs flex items-center gap-2 shadow-sm transition"
                       >
                         <Boxes className="w-4 h-4" />
-                        <span>Step 5: Check Quantity & Confirm Stock</span>
+                        <span>Check Quantity & Confirm Stock</span>
                       </button>
                     )}
 
@@ -268,14 +268,14 @@ export const OrderReceivedView: React.FC = () => {
                       </button>
                     )}
 
-                    {/* Step 6: Dispatch / Ship */}
+                    {/* Dispatch / Ship */}
                     {(isConfirmed || isPacked) && (
                       <button
                         onClick={() => handleOpenDelivery(order)}
                         className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-2 shadow-sm transition"
                       >
                         <Truck className="w-4 h-4" />
-                        <span>Step 6: Assign Carrier & Dispatch</span>
+                        <span>Assign Carrier & Dispatch</span>
                       </button>
                     )}
 

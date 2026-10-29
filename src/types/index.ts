@@ -1,6 +1,16 @@
 export type UserRole = 'farmer' | 'buyer';
 export type BuyerCategory = 'individual' | 'bulk';
 
+export interface UserAccount {
+  id: string;
+  username: string;
+  email: string;
+  password: string;
+  role: UserRole;
+  profileCompleted: boolean;
+  createdAt: string;
+}
+
 export interface FarmerProfile {
   id: string;
   name: string;

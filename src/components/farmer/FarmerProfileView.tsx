@@ -52,7 +52,7 @@ export const FarmerProfileView: React.FC = () => {
         </div>
 
         <div className="bg-white/10 backdrop-blur-md px-4 py-2.5 rounded-xl border border-white/20 text-right">
-          <div className="text-[11px] text-emerald-200 uppercase font-semibold">Step 1 of Flowchart</div>
+          <div className="text-[11px] text-emerald-200 uppercase font-semibold">Farm Producer Info</div>
           <div className="text-sm font-bold text-white">Farmer Detail & Address</div>
         </div>
       </div>

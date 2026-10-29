@@ -80,7 +80,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose })
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-[11px] font-bold uppercase tracking-wider text-sky-200">
-                  Steps 3 & 4 of Buyer Track
+                  Secure Direct Checkout
                 </span>
                 <span className="text-[10px] bg-emerald-500/30 text-emerald-200 px-2 py-0.2 rounded-full border border-emerald-400/30">
                   Zero Middleman Direct Checkout
@@ -97,12 +97,12 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose })
         {/* Content Body */}
         <form onSubmit={handlePlaceOrder} className="p-6 space-y-5 max-h-[78vh] overflow-y-auto">
           
-          {/* Step 3: Choose Delivery Address */}
+          {/* Delivery Address */}
           <div>
             <div className="flex items-center justify-between mb-2">
               <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
                 <MapPin className="w-4 h-4 text-sky-600" />
-                Step 3A: Delivery Address Destination
+                Delivery Address Destination
               </h4>
               <span className="text-[11px] text-slate-400">
                 Receiver: <strong className="text-slate-700">{activeBuyer.name}</strong> ({activeBuyer.phone})
@@ -131,11 +131,11 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose })
             </div>
           </div>
 
-          {/* Step 3: Set Payment Method */}
+          {/* Payment Method */}
           <div>
             <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-2 flex items-center gap-1.5">
               <CreditCard className="w-4 h-4 text-sky-600" />
-              Step 3B: Set Payment Method
+              Payment Method
             </h4>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -260,10 +260,10 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose })
             )}
           </div>
 
-          {/* Step 4: Order Summary & Review */}
+          {/* Order Summary & Review */}
           <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
             <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center justify-between">
-              <span>Step 4: Invoice Breakdown</span>
+              <span>Invoice Breakdown</span>
               <span className="text-[10px] text-slate-400 font-normal">{cart.length} item kinds</span>
             </h4>
 
@@ -336,7 +336,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose })
                 ) : (
                   <>
                     <Check className="w-4 h-4" />
-                    <span>Step 4: Place Order (Confirm & Submit)</span>
+                    <span>Place Order (Confirm & Submit)</span>
                   </>
                 )}
               </button>

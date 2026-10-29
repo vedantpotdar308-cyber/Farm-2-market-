@@ -3,6 +3,7 @@ import confetti from 'canvas-confetti';
 import { 
   UserRole, 
   BuyerCategory, 
+  UserAccount,
   FarmerProfile, 
   BuyerProfile, 
   Product, 
@@ -12,6 +13,7 @@ import {
   OrderStatus 
 } from '../types';
 import { 
+  INITIAL_USERS,
   INITIAL_FARMER, 
   INITIAL_INDIVIDUAL_BUYER, 
   INITIAL_BULK_BUYER, 
@@ -21,12 +23,22 @@ import {
 } from '../data/initialData';
 
 interface AppContextType {
+  // Auth & Session
+  users: UserAccount[];
+  currentUser: UserAccount | null;
+  isAuthenticated: boolean;
+  registerUser: (username: string, email: string, password: string, role: UserRole) => { success: boolean; error?: string };
+  loginUser: (usernameOrEmail: string, password: string) => { success: boolean; error?: string };
+  logoutUser: () => void;
+  isOnboardingOpen: boolean;
+  setIsOnboardingOpen: (open: boolean) => void;
+  completeOnboarding: (data: Partial<FarmerProfile> | Partial<BuyerProfile>) => void;
+
+  // Active Role & Buyer Profile
   currentRole: UserRole;
   setCurrentRole: (role: UserRole) => void;
   buyerType: BuyerCategory;
   setBuyerType: (type: BuyerCategory) => void;
-  splitMode: boolean;
-  setSplitMode: (val: boolean | ((prev: boolean) => boolean)) => void;
 
   farmer: FarmerProfile;
   updateFarmerProfile: (profile: Partial<FarmerProfile>) => void;
@@ -65,8 +77,6 @@ interface AppContextType {
   // Modals & UI Controls
   isCartOpen: boolean;
   setIsCartOpen: (open: boolean) => void;
-  isRoleModalOpen: boolean;
-  setIsRoleModalOpen: (open: boolean) => void;
   isAddProductModalOpen: boolean;
   setIsAddProductModalOpen: (open: boolean) => void;
   isCheckQuantityModalOpen: boolean;
@@ -90,27 +100,41 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 const STORAGE_KEYS = {
-  FARMER: 'f2m_farmer_v1',
-  IND_BUYER: 'f2m_ind_buyer_v1',
-  BULK_BUYER: 'f2m_bulk_buyer_v1',
-  PRODUCTS: 'f2m_products_v1',
-  ORDERS: 'f2m_orders_v1',
-  NOTIFICATIONS: 'f2m_notifications_v1',
-  ROLE: 'f2m_role_v1',
-  BUYER_TYPE: 'f2m_buyer_type_v1',
+  USERS: 'f2m_users_v2',
+  CURRENT_USER: 'f2m_current_user_v2',
+  FARMER: 'f2m_farmer_v2',
+  IND_BUYER: 'f2m_ind_buyer_v2',
+  BULK_BUYER: 'f2m_bulk_buyer_v2',
+  PRODUCTS: 'f2m_products_v2',
+  ORDERS: 'f2m_orders_v2',
+  NOTIFICATIONS: 'f2m_notifications_v2',
+  ROLE: 'f2m_role_v2',
+  BUYER_TYPE: 'f2m_buyer_type_v2',
 };
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Roles
+  // Users state
+  const [users, setUsers] = useState<UserAccount[]>(() => {
+    const saved = localStorage.getItem(STORAGE_KEYS.USERS);
+    return saved ? JSON.parse(saved) : INITIAL_USERS;
+  });
+
+  // Current session
+  const [currentUser, setCurrentUser] = useState<UserAccount | null>(() => {
+    const saved = localStorage.getItem(STORAGE_KEYS.CURRENT_USER);
+    return saved ? JSON.parse(saved) : null;
+  });
+
+  const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
+
+  // Active Role based on current user
   const [currentRole, setCurrentRoleState] = useState<UserRole>(() => {
-    return (localStorage.getItem(STORAGE_KEYS.ROLE) as UserRole) || 'buyer';
+    return currentUser?.role || 'buyer';
   });
 
   const [buyerType, setBuyerTypeState] = useState<BuyerCategory>(() => {
     return (localStorage.getItem(STORAGE_KEYS.BUYER_TYPE) as BuyerCategory) || 'individual';
   });
-
-  const [splitMode, setSplitMode] = useState<boolean>(false);
 
   // Entities
   const [farmer, setFarmer] = useState<FarmerProfile>(() => {
@@ -147,7 +171,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Modals state
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
   const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false);
   const [isCheckQuantityModalOpen, setIsCheckQuantityModalOpen] = useState(false);
   const [activeOrderForQuantityCheck, setActiveOrderForQuantityCheck] = useState<Order | null>(null);
@@ -158,6 +181,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [selectedOrderForTracking, setSelectedOrderForTracking] = useState<Order | null>(null);
 
   // Persistence effects
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
+  }, [users]);
+
+  useEffect(() => {
+    if (currentUser) {
+      localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(currentUser));
+      setCurrentRoleState(currentUser.role);
+    } else {
+      localStorage.removeItem(STORAGE_KEYS.CURRENT_USER);
+    }
+  }, [currentUser]);
+
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.ROLE, currentRole);
   }, [currentRole]);
@@ -207,6 +243,107 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       osc.stop(audioCtx.currentTime + 0.3);
     } catch {
       // AudioContext may be blocked before interaction, safe fallback
+    }
+  };
+
+  // Auth Operations
+  const registerUser = (username: string, email: string, password: string, role: UserRole) => {
+    const trimmedUsername = username.trim();
+    const trimmedEmail = email.trim().toLowerCase();
+
+    // Check duplicate
+    const exists = users.some(
+      u => u.username.toLowerCase() === trimmedUsername.toLowerCase() || u.email.toLowerCase() === trimmedEmail
+    );
+
+    if (exists) {
+      return { success: false, error: 'Username or Email is already registered. Please sign in.' };
+    }
+
+    const newUser: UserAccount = {
+      id: `usr_${Date.now()}`,
+      username: trimmedUsername,
+      email: trimmedEmail,
+      password,
+      role,
+      profileCompleted: false,
+      createdAt: new Date().toISOString()
+    };
+
+    setUsers(prev => [...prev, newUser]);
+    setCurrentUser(newUser);
+    setCurrentRoleState(role);
+
+    // Seed basic profile defaults
+    if (role === 'farmer') {
+      setFarmer(prev => ({
+        ...prev,
+        name: trimmedUsername,
+        email: trimmedEmail
+      }));
+    } else {
+      setIndividualBuyer(prev => ({
+        ...prev,
+        name: trimmedUsername,
+        email: trimmedEmail
+      }));
+    }
+
+    // Immediately open profile onboarding!
+    setIsOnboardingOpen(true);
+
+    return { success: true };
+  };
+
+  const loginUser = (usernameOrEmail: string, password: string) => {
+    const query = usernameOrEmail.trim().toLowerCase();
+    const user = users.find(
+      u => (u.username.toLowerCase() === query || u.email.toLowerCase() === query) && u.password === password
+    );
+
+    if (!user) {
+      return { success: false, error: 'Invalid username/email or password.' };
+    }
+
+    setCurrentUser(user);
+    setCurrentRoleState(user.role);
+
+    if (!user.profileCompleted) {
+      setIsOnboardingOpen(true);
+    }
+
+    return { success: true };
+  };
+
+  const logoutUser = () => {
+    setCurrentUser(null);
+    setIsCartOpen(false);
+    setSelectedOrderForTracking(null);
+  };
+
+  const completeOnboarding = (data: Partial<FarmerProfile> | Partial<BuyerProfile>) => {
+    if (currentRole === 'farmer') {
+      setFarmer(prev => ({ ...prev, ...data }));
+    } else {
+      if (buyerType === 'individual') {
+        setIndividualBuyer(prev => ({ ...prev, ...(data as Partial<BuyerProfile>) }));
+      } else {
+        setBulkBuyer(prev => ({ ...prev, ...(data as Partial<BuyerProfile>) }));
+      }
+    }
+
+    if (currentUser) {
+      const updatedUser = { ...currentUser, profileCompleted: true };
+      setCurrentUser(updatedUser);
+      setUsers(prev => prev.map(u => u.id === updatedUser.id ? updatedUser : u));
+    }
+
+    setIsOnboardingOpen(false);
+
+    try {
+      confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
+    } catch {
+      // ignore
     }
   };
 
@@ -278,8 +415,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const notif: NotificationItem = {
       id: `notif_${Date.now()}`,
       targetRole: 'farmer',
-      title: '✅ Photo Quality Verified',
-      message: `Product image verified: AI Freshness ${score}/100. "${grade}" certificate badge issued!`,
+      title: '✅ Quality Verified',
+      message: `Product image verified: Freshness ${score}/100. "${grade}" certificate badge issued!`,
       type: 'verification',
       timestamp: 'Just now',
       read: false
@@ -348,7 +485,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return sum;
   }, 0);
 
-  // Buyer: Step 4 Place Order -> Triggers Farmer Step 4 "Order Received"
+  // Buyer: Place Order -> Alerts Farmer
   const placeOrder = (paymentMethod: Order['paymentMethod'], deliveryAddress: string) => {
     const newOrderId = `ORD-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
     const deliveryFee = buyerType === 'bulk' ? 120 : 40;
@@ -367,7 +504,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       imageUrl: item.product.images[0] || 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=600'
     }));
 
-    // Deduct stock from products
+    // Deduct stock
     setProducts(prev => prev.map(p => {
       const cartItem = cart.find(ci => ci.product.id === p.id);
       if (cartItem) {
@@ -450,7 +587,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     clearCart();
     setIsCartOpen(false);
 
-    // Confetti celebration
     try {
       confetti({
         particleCount: 80,
@@ -461,7 +597,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       // ignore
     }
 
-    // Trigger Notification for FARMER (Step 4: Order Received)
+    // Farmer notification
     const farmerNotif: NotificationItem = {
       id: `notif_${Date.now()}_farmer`,
       targetRole: 'farmer',
@@ -473,7 +609,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       read: false
     };
 
-    // Notification for BUYER (Step 5: Order Placed Successfully)
+    // Buyer notification
     const buyerNotif: NotificationItem = {
       id: `notif_${Date.now()}_buyer`,
       targetRole: 'buyer',
@@ -492,7 +628,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return newOrder;
   };
 
-  // Farmer Step 5: Check Quantity (Confirm Availability)
+  // Farmer: Confirm Availability
   const farmerConfirmQuantity = (orderId: string, confirmed: boolean, notes?: string) => {
     setOrders(prev => prev.map(ord => {
       if (ord.id === orderId) {
@@ -519,7 +655,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return ord;
     }));
 
-    // Alert Buyer
     const buyerNotif: NotificationItem = {
       id: `notif_${Date.now()}_q_confirm`,
       targetRole: 'buyer',
@@ -534,7 +669,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     playNotificationSound();
   };
 
-  // Farmer Packing
+  // Farmer: Pack
   const farmerPackOrder = (orderId: string) => {
     setOrders(prev => prev.map(ord => {
       if (ord.id === orderId) {
@@ -573,7 +708,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     playNotificationSound();
   };
 
-  // Farmer Step 6: Delivery (Ship to Customer)
+  // Farmer: Dispatch
   const farmerDispatchOrder = (orderId: string, partner: string, trackingNo: string, eta: string) => {
     setOrders(prev => prev.map(ord => {
       if (ord.id === orderId) {
@@ -666,6 +801,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const unreadBuyerNotifications = notifications.filter(n => n.targetRole === 'buyer' && !n.read).length;
 
   const resetDemoData = () => {
+    setUsers(INITIAL_USERS);
+    setCurrentUser(null);
     setFarmer(INITIAL_FARMER);
     setIndividualBuyer(INITIAL_INDIVIDUAL_BUYER);
     setBulkBuyer(INITIAL_BULK_BUYER);
@@ -675,15 +812,24 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setCart([]);
   };
 
+  const isAuthenticated = Boolean(currentUser);
+
   return (
     <AppContext.Provider
       value={{
+        users,
+        currentUser,
+        isAuthenticated,
+        registerUser,
+        loginUser,
+        logoutUser,
+        isOnboardingOpen,
+        setIsOnboardingOpen,
+        completeOnboarding,
         currentRole,
         setCurrentRole,
         buyerType,
         setBuyerType,
-        splitMode,
-        setSplitMode,
         farmer,
         updateFarmerProfile,
         individualBuyer,
@@ -715,8 +861,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         markAllNotificationsRead,
         isCartOpen,
         setIsCartOpen,
-        isRoleModalOpen,
-        setIsRoleModalOpen,
         isAddProductModalOpen,
         setIsAddProductModalOpen,
         isCheckQuantityModalOpen,

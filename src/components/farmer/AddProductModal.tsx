@@ -133,7 +133,7 @@ export const AddProductModal: React.FC = () => {
             </div>
             <div>
               <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-200">
-                Step 2 of Farmer Track
+                Produce Catalog Listing
               </span>
               <h3 className="text-xl font-extrabold">Add New Farm Produce</h3>
             </div>
@@ -342,12 +342,12 @@ export const AddProductModal: React.FC = () => {
             </label>
           </div>
 
-          {/* Step 3 Auto-trigger toggle */}
+          {/* Photo Verification trigger toggle */}
           <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Camera className="w-4 h-4 text-emerald-700" />
               <div className="text-xs font-semibold text-emerald-900">
-                Immediately Launch Step 3: Photo Verification
+                Run Produce Quality & Freshness Verification
               </div>
             </div>
             <input

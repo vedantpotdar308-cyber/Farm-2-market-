@@ -13,13 +13,20 @@ import {
   CheckCircle2, 
   Tag, 
   TrendingUp, 
-  Layers,
-  Sparkles,
-  Award
+  Layers, 
+  Award 
 } from 'lucide-react';
 import { Product } from '../../types';
 
-export const FarmerTrackView: React.FC = () => {
+interface FarmerTrackViewProps {
+  activeTab?: string;
+  setActiveTab?: (tab: string) => void;
+}
+
+export const FarmerTrackView: React.FC<FarmerTrackViewProps> = ({ 
+  activeTab: externalTab, 
+  setActiveTab: setExternalTab 
+}) => {
   const { 
     farmer, 
     products, 
@@ -30,7 +37,12 @@ export const FarmerTrackView: React.FC = () => {
     deleteProduct
   } = useApp();
 
-  const [activeTab, setActiveTab] = useState<'PRODUCTS' | 'ORDERS' | 'PROFILE'>('PRODUCTS');
+  const [internalTab, setInternalTab] = useState<'PRODUCTS' | 'ORDERS' | 'PROFILE'>('PRODUCTS');
+  const activeTab = (externalTab as 'PRODUCTS' | 'ORDERS' | 'PROFILE') || internalTab;
+  const setActiveTab = (tab: 'PRODUCTS' | 'ORDERS' | 'PROFILE') => {
+    if (setExternalTab) setExternalTab(tab);
+    setInternalTab(tab);
+  };
 
   // Stats
   const totalStockKg = products.reduce((sum, p) => sum + (p.unit === 'kg' ? p.availableQuantity : p.availableQuantity * 20), 0);
@@ -50,25 +62,23 @@ export const FarmerTrackView: React.FC = () => {
       
       {/* Top Banner / Farmer Identity & KPIs */}
       <div className="bg-gradient-to-br from-emerald-800 via-teal-900 to-slate-900 rounded-3xl p-6 sm:p-8 text-white shadow-lg relative overflow-hidden">
-        {/* Abstract background decorative circles */}
         <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none"></div>
-        <div className="absolute bottom-0 right-32 -mb-16 w-48 h-48 rounded-full bg-teal-400/10 blur-2xl pointer-events-none"></div>
 
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 mb-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-              Farmer Track Dashboard (Sell Your Produce)
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 mb-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+              Farmer & Producer Portal
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-              {farmer.farmName}
+              {farmer.farmName || 'Patil Organic Farms'}
             </h1>
             <p className="text-emerald-200/80 text-xs sm:text-sm mt-1 flex items-center gap-2 flex-wrap">
               <span>Producer: <strong>{farmer.name}</strong></span>
               <span>•</span>
               <span>{farmer.village}, {farmer.district} ({farmer.state})</span>
               <span>•</span>
-              <span>{farmer.farmSizeAcres} Acres Farmed</span>
+              <span>{farmer.farmSizeAcres} Acres Cultivated</span>
             </p>
           </div>
 
@@ -79,14 +89,14 @@ export const FarmerTrackView: React.FC = () => {
               className="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs flex items-center gap-2 shadow-lg shadow-emerald-500/25 transition"
             >
               <PlusCircle className="w-4 h-4" />
-              <span>Step 2: Add New Produce</span>
+              <span>List New Produce</span>
             </button>
             <button
               onClick={() => setActiveTab('PROFILE')}
               className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs flex items-center gap-2 border border-white/20 transition"
             >
               <User className="w-4 h-4" />
-              <span>Step 1: Farmer Detail</span>
+              <span>Farm Profile & Payout</span>
             </button>
           </div>
         </div>
@@ -96,25 +106,25 @@ export const FarmerTrackView: React.FC = () => {
           <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/10">
             <div className="text-[11px] font-semibold text-emerald-200 uppercase tracking-wider flex items-center gap-1.5">
               <Layers className="w-3.5 h-3.5 text-emerald-400" />
-              Active Listings
+              Listed Products
             </div>
             <div className="text-2xl font-extrabold text-white mt-1">
               {products.length}
             </div>
             <div className="text-[10px] text-emerald-300 mt-0.5">
-              {verifiedProductsCount} Photo Verified
+              {verifiedProductsCount} Quality Verified
             </div>
           </div>
 
           <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/10">
             <div className="text-[11px] font-semibold text-amber-200 uppercase tracking-wider flex items-center gap-1.5">
               <Bell className="w-3.5 h-3.5 text-amber-400" />
-              Step 4: New Orders
+              Incoming Orders
             </div>
             <div className="text-2xl font-extrabold text-white mt-1 flex items-baseline gap-2">
               {orders.length}
               {pendingOrdersCount > 0 && (
-                <span className="text-xs px-2 py-0.5 rounded-full bg-amber-400 text-amber-950 font-bold animate-pulse">
+                <span className="text-xs px-2 py-0.5 rounded-full bg-amber-400 text-amber-950 font-bold">
                   {pendingOrdersCount} Check Needed
                 </span>
               )}
@@ -127,32 +137,32 @@ export const FarmerTrackView: React.FC = () => {
           <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/10">
             <div className="text-[11px] font-semibold text-teal-200 uppercase tracking-wider flex items-center gap-1.5">
               <Boxes className="w-3.5 h-3.5 text-teal-400" />
-              Available Stock
+              Harvest Stock
             </div>
             <div className="text-2xl font-extrabold text-white mt-1">
               {totalStockKg.toLocaleString('en-IN')} <span className="text-xs font-normal text-teal-200">kg</span>
             </div>
             <div className="text-[10px] text-teal-200/80 mt-0.5">
-              Across crops & veggies
+              Available across batches
             </div>
           </div>
 
           <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/10">
             <div className="text-[11px] font-semibold text-sky-200 uppercase tracking-wider flex items-center gap-1.5">
               <TrendingUp className="w-3.5 h-3.5 text-sky-400" />
-              Direct Earnings
+              Net Direct Revenue
             </div>
             <div className="text-2xl font-extrabold text-white mt-1">
               ₹{totalEarnings.toLocaleString('en-IN')}
             </div>
             <div className="text-[10px] text-sky-200/80 mt-0.5">
-              0% Mandi Commission lost
+              100% direct settlement
             </div>
           </div>
         </div>
       </div>
 
-      {/* Tabs matching Farmer Workflow */}
+      {/* Clean Tabs */}
       <div className="flex items-center gap-2 border-b border-slate-200 pb-2">
         <button
           onClick={() => setActiveTab('PRODUCTS')}
@@ -163,7 +173,7 @@ export const FarmerTrackView: React.FC = () => {
           }`}
         >
           <Layers className="w-4 h-4" />
-          <span>Listed Produce & Verification (Steps 2 & 3)</span>
+          <span>Produce Inventory & Pricing</span>
           <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-white/20">
             {products.length}
           </span>
@@ -178,9 +188,9 @@ export const FarmerTrackView: React.FC = () => {
           }`}
         >
           <Bell className="w-4 h-4" />
-          <span>Orders & Stock Verification (Steps 4, 5 & 6)</span>
+          <span>Incoming Orders & Availability</span>
           {pendingOrdersCount > 0 && (
-            <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-amber-400 text-amber-950 font-extrabold animate-pulse">
+            <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-amber-400 text-amber-950 font-extrabold">
               {pendingOrdersCount}
             </span>
           )}
@@ -195,11 +205,11 @@ export const FarmerTrackView: React.FC = () => {
           }`}
         >
           <User className="w-4 h-4" />
-          <span>Farmer Profile & Farm Geo-Address (Step 1)</span>
+          <span>Farm Profile & Dispatch Address</span>
         </button>
       </div>
 
-      {/* Tab 1: Listed Produce & Verification */}
+      {/* Tab 1: Produce Inventory */}
       {activeTab === 'PRODUCTS' && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
@@ -208,7 +218,7 @@ export const FarmerTrackView: React.FC = () => {
                 Your Produce Inventory
               </h3>
               <p className="text-xs text-slate-500">
-                Manage harvest stocks, update retail/wholesale rates, and trigger Step 3 Photo Quality Verification.
+                Manage your available crops, set retail & wholesale bulk discount rates, and verify produce quality.
               </p>
             </div>
 
@@ -217,7 +227,7 @@ export const FarmerTrackView: React.FC = () => {
               className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition"
             >
               <PlusCircle className="w-4 h-4" />
-              <span>Add Produce</span>
+              <span>List New Produce</span>
             </button>
           </div>
 
@@ -245,15 +255,15 @@ export const FarmerTrackView: React.FC = () => {
                     {product.photoVerified ? (
                       <span className="absolute top-2.5 right-2.5 bg-emerald-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-xl flex items-center gap-1 shadow-sm">
                         <Award className="w-3 h-3 text-amber-300" />
-                        <span>Verified {product.freshnessScore}%</span>
+                        <span>Verified Fresh ({product.freshnessScore}%)</span>
                       </span>
                     ) : (
                       <button
                         onClick={() => handleLaunchPhotoVerify(product)}
-                        className="absolute top-2.5 right-2.5 bg-amber-500 hover:bg-amber-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-xl flex items-center gap-1 shadow-sm animate-pulse"
+                        className="absolute top-2.5 right-2.5 bg-amber-500 hover:bg-amber-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-xl flex items-center gap-1 shadow-sm"
                       >
                         <Camera className="w-3 h-3" />
-                        <span>Run Step 3 Verify</span>
+                        <span>Verify Quality</span>
                       </button>
                     )}
 
@@ -308,7 +318,7 @@ export const FarmerTrackView: React.FC = () => {
                     className="text-xs font-semibold text-emerald-600 hover:text-emerald-700 flex items-center gap-1 py-1.5"
                   >
                     <Camera className="w-3.5 h-3.5" />
-                    <span>{product.photoVerified ? 'Re-inspect' : 'Verify Photo'}</span>
+                    <span>{product.photoVerified ? 'Re-inspect Quality' : 'Verify Quality'}</span>
                   </button>
 
                   <button

@@ -70,7 +70,7 @@ export const CheckQuantityModal: React.FC = () => {
             </div>
             <div>
               <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-200">
-                Step 5 of Farmer Track (Key Differentiator)
+                Inventory Verification & Dispatch Prep
               </span>
               <h3 className="text-xl font-extrabold">Check Quantity & Confirm Availability</h3>
             </div>
@@ -177,11 +177,11 @@ export const CheckQuantityModal: React.FC = () => {
             </label>
           </div>
 
-          {/* Hackathon slide callout */}
+          {/* Quality Assurance Note */}
           <div className="p-3 rounded-xl bg-slate-100 text-slate-600 text-[11px] leading-relaxed flex items-center gap-2">
             <ShieldCheck className="w-4 h-4 text-emerald-600 flex-shrink-0" />
             <span>
-              <strong>Slide 5 Value:</strong> Cross-checking quantity reduces cancellations, prevents buyer disappointment, and builds direct farm reputation.
+              <strong>Quality Assurance:</strong> Cross-checking quantity reduces cancellations, prevents buyer mismatch, and builds trust with recurring clients.
             </span>
           </div>
 
@@ -212,7 +212,7 @@ export const CheckQuantityModal: React.FC = () => {
               className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 disabled:opacity-50 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition"
             >
               <Truck className="w-4 h-4 text-emerald-400" />
-              <span>Confirm & Ship (Step 6)</span>
+              <span>Confirm & Dispatch</span>
             </button>
           </div>
 

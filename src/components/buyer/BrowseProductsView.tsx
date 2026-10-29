@@ -84,9 +84,6 @@ export const BrowseProductsView: React.FC = () => {
               <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
                 Farm Fresh Direct Marketplace
               </h2>
-              <span className="text-xs px-2.5 py-0.5 rounded-full bg-sky-100 text-sky-800 font-bold">
-                Step 2: Browse & Buy
-              </span>
             </div>
             <p className="text-xs text-slate-500 mt-1">
               Directly sourced from verified growers in Nashik, Pune & Maharashtra. 0% middleman markups.
@@ -281,7 +278,7 @@ export const BrowseProductsView: React.FC = () => {
                     <button
                       onClick={() => handleDiscussWithFarmer(product)}
                       className="p-1.5 rounded-lg bg-white border border-slate-200 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300 text-slate-600 transition"
-                      title="Direct Producer Inquiry (Slide 6)"
+                      title="Direct Producer Inquiry"
                     >
                       <PhoneCall className="w-3.5 h-3.5" />
                     </button>

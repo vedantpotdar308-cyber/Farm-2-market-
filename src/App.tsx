@@ -1,42 +1,53 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useApp } from './context/AppContext';
 import { Header } from './components/Header';
-import { WorkflowDiagramBanner } from './components/WorkflowDiagramBanner';
-import { RoleSelectModal } from './components/RoleSelectModal';
+import { AuthPage } from './components/auth/AuthPage';
+import { OnboardingModal } from './components/auth/OnboardingModal';
 import { FarmerTrackView } from './components/farmer/FarmerTrackView';
 import { BuyerTrackView } from './components/buyer/BuyerTrackView';
-import { SplitViewDemo } from './components/SplitViewDemo';
 import { AddProductModal } from './components/farmer/AddProductModal';
 import { PhotoVerificationModal } from './components/farmer/PhotoVerificationModal';
 import { CheckQuantityModal } from './components/farmer/CheckQuantityModal';
 import { DeliveryManagementModal } from './components/farmer/DeliveryManagementModal';
 import { CartDrawer } from './components/buyer/CartDrawer';
 import { OrderSuccessTrackingModal } from './components/buyer/OrderSuccessTrackingModal';
-import { Sprout, Heart, ShieldCheck, Zap } from 'lucide-react';
+import { ShieldCheck, Zap, Sprout, ArrowRight } from 'lucide-react';
 
 const AppContent: React.FC = () => {
-  const { currentRole, splitMode } = useApp();
+  const { isAuthenticated, currentRole, currentUser } = useApp();
+
+  const [farmerTab, setFarmerTab] = useState<'PRODUCTS' | 'ORDERS' | 'PROFILE'>('PRODUCTS');
+  const [buyerTab, setBuyerTab] = useState<'BROWSE' | 'ORDERS' | 'PROFILE'>('BROWSE');
+
+  // If not authenticated, render dedicated Login / Registration screen
+  if (!isAuthenticated) {
+    return <AuthPage />;
+  }
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-100/70 text-slate-900">
-      {/* Top Fixed Header */}
-      <Header />
+    <div className="min-h-screen flex flex-col bg-slate-100/70 text-slate-900 font-sans">
+      {/* Top Fixed Header with role-isolated navigation */}
+      <Header
+        activeTab={currentRole === 'farmer' ? farmerTab : buyerTab}
+        onNavigateTab={(tab) => {
+          if (currentRole === 'farmer') {
+            setFarmerTab(tab as 'PRODUCTS' | 'ORDERS' | 'PROFILE');
+          } else {
+            setBuyerTab(tab as 'BROWSE' | 'ORDERS' | 'PROFILE');
+          }
+        }}
+      />
 
-      {/* Visual Workflow Flowchart Blueprint Banner */}
-      <WorkflowDiagramBanner />
-
-      {/* Main Container */}
+      {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {splitMode ? (
-          <SplitViewDemo />
-        ) : currentRole === 'farmer' ? (
-          <FarmerTrackView />
+        {currentRole === 'farmer' ? (
+          <FarmerTrackView activeTab={farmerTab} setActiveTab={(tab) => setFarmerTab(tab as 'PRODUCTS' | 'ORDERS' | 'PROFILE')} />
         ) : (
-          <BuyerTrackView />
+          <BuyerTrackView activeTab={buyerTab} setActiveTab={(tab) => setBuyerTab(tab as 'BROWSE' | 'ORDERS' | 'PROFILE')} />
         )}
       </main>
 
-      {/* Footer */}
+      {/* Professional Commercial Footer */}
       <footer className="bg-white border-t border-slate-200 mt-12 py-8 text-xs text-slate-500">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
@@ -44,7 +55,7 @@ const AppContent: React.FC = () => {
               🌱
             </div>
             <span className="font-extrabold text-slate-800">Farm2Market</span>
-            <span>— Direct Farm-to-Consumer & Bulk Procurement Hub</span>
+            <span>— Direct Farm-to-Consumer & Commercial Bulk Procurement Platform</span>
           </div>
 
           <div className="flex items-center gap-4 text-[11px] text-slate-400">
@@ -58,13 +69,15 @@ const AppContent: React.FC = () => {
               Zero Middleman Commission
             </span>
             <span>•</span>
-            <span>Smart India Hackathon 2026</span>
+            <span>© {new Date().getFullYear()} Farm2Market Technologies</span>
           </div>
         </div>
       </footer>
 
-      {/* Global Modals & Drawers */}
-      <RoleSelectModal />
+      {/* Mandatory Onboarding / Profile Setup Modal */}
+      <OnboardingModal />
+
+      {/* Role Operations Modals */}
       <AddProductModal />
       <PhotoVerificationModal />
       <CheckQuantityModal />

@@ -97,7 +97,7 @@ export const DeliveryManagementModal: React.FC = () => {
             </div>
             <div>
               <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-200">
-                Step 6 of Farmer Track
+                Logistics & Dispatch Coordination
               </span>
               <h3 className="text-xl font-extrabold">Delivery & Shipment Dispatch</h3>
             </div>

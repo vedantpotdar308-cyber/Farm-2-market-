@@ -22,8 +22,6 @@ export const OrderSuccessTrackingModal: React.FC = () => {
   const { 
     selectedOrderForTracking, 
     setSelectedOrderForTracking, 
-    setCurrentRole,
-    setSplitMode,
     farmer
   } = useApp();
 
@@ -34,11 +32,6 @@ export const OrderSuccessTrackingModal: React.FC = () => {
   // Print invoice handler
   const handlePrintReceipt = () => {
     window.print();
-  };
-
-  const handleSwitchToFarmerToProgress = () => {
-    setCurrentRole('farmer');
-    setSelectedOrderForTracking(null);
   };
 
   const stepsConfig: { status: OrderStatus; label: string; icon: React.ReactNode }[] = [
@@ -82,10 +75,10 @@ export const OrderSuccessTrackingModal: React.FC = () => {
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-200">
-                  Step 5 of Buyer Track
+                  Live Dispatch Tracking
                 </span>
                 <span className="text-[10px] bg-emerald-500/30 text-emerald-200 px-2 py-0.2 rounded-full border border-emerald-400/30">
-                  Live Farm Dispatch Tracking
+                  Direct Farm Delivery
                 </span>
               </div>
               <h3 className="text-xl font-extrabold mt-0.5">
@@ -252,25 +245,6 @@ export const OrderSuccessTrackingModal: React.FC = () => {
               <span className="font-bold text-slate-800">Delivery Address: </span>
               <span className="text-slate-600">{order.deliveryAddress}</span>
             </div>
-          </div>
-
-          {/* Demonstration Action Banner */}
-          <div className="p-4 rounded-2xl bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div>
-              <h5 className="text-xs font-bold text-purple-900">
-                Presentation Tip: Experience the Real-Time Handshake
-              </h5>
-              <p className="text-[11px] text-purple-700">
-                Switch to <strong>Farmer Track</strong> to check quantity & confirm stock availability, pack, or dispatch this order!
-              </p>
-            </div>
-            <button
-              onClick={handleSwitchToFarmerToProgress}
-              className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs flex items-center gap-1.5 whitespace-nowrap shadow-sm transition"
-            >
-              <span>Switch to Farmer View</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </button>
           </div>
 
           {/* Footer actions */}

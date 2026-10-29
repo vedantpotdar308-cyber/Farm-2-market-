@@ -1,4 +1,34 @@
-import { FarmerProfile, BuyerProfile, Product, Order, NotificationItem } from '../types';
+import { UserAccount, FarmerProfile, BuyerProfile, Product, Order, NotificationItem } from '../types';
+
+export const INITIAL_USERS: UserAccount[] = [
+  {
+    id: 'user_farmer_01',
+    username: 'farmer_ramesh',
+    email: 'ramesh.patil@agridirect.com',
+    password: 'farmer123',
+    role: 'farmer',
+    profileCompleted: true,
+    createdAt: '2026-09-01T08:00:00Z'
+  },
+  {
+    id: 'user_buyer_01',
+    username: 'priya_buyer',
+    email: 'priya.sharma@gmail.com',
+    password: 'buyer123',
+    role: 'buyer',
+    profileCompleted: true,
+    createdAt: '2026-09-05T09:00:00Z'
+  },
+  {
+    id: 'user_bulk_01',
+    username: 'royal_spice',
+    email: 'procurement@royalspice.com',
+    password: 'bulk123',
+    role: 'buyer',
+    profileCompleted: true,
+    createdAt: '2026-09-10T10:00:00Z'
+  }
+];
 
 export const INITIAL_FARMER: FarmerProfile = {
   id: 'farmer_01',

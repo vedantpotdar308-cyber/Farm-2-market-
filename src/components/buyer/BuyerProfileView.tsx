@@ -69,7 +69,7 @@ export const BuyerProfileView: React.FC = () => {
         </div>
 
         <div className="bg-white/10 backdrop-blur-md px-4 py-2.5 rounded-xl border border-white/20 text-right">
-          <div className="text-[11px] text-sky-200 uppercase font-semibold">Step 1 of Flowchart</div>
+          <div className="text-[11px] text-sky-200 uppercase font-semibold">Account Settings</div>
           <div className="text-sm font-bold text-white">Buyer Detail & Address</div>
         </div>
       </div>
